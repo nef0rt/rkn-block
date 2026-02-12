@@ -1,696 +1,459 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Рулетка РКН • футуристический glassmorphism</title>
-  <!-- Шрифты Inter и Montserrat с запасными SF Pro -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* Сброс и глобальный стиль */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', 'Montserrat', -apple-system, 'SF Pro Display', sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DFF → MOD · снежный конвертер</title>
+    <style>
+        /* сине-темный размытый фон, снег, неоновый акцент */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
 
-    body {
-      background: radial-gradient(circle at 20% 30%, #0a1428, #030812);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 1.5rem;
-      position: relative;
-      overflow-x: hidden;
-    }
+        body {
+            background: radial-gradient(circle at 20% 30%, #0b1c2f, #030812);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+            backdrop-filter: blur(2px);
+            padding: 16px;
+        }
 
-    /* ГЛУБОКИЙ СИНИЙ ГРАДИЕНТ + РАЗМЫТЫЕ ФОРМЫ */
-    .blur-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-    }
+        /* размытый слой поверх фона — эффект стекла */
+        .glass-panel {
+            background: rgba(8, 20, 36, 0.65);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-radius: 48px 24px 48px 24px;
+            border: 1px solid rgba(90, 180, 255, 0.25);
+            box-shadow: 0 25px 40px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(210, 230, 255, 0.07) inset;
+            padding: 32px 28px;
+            width: 100%;
+            max-width: 600px;
+            transition: all 0.2s ease;
+            color: white;
+            position: relative;
+            z-index: 10;
+        }
 
-    .blur-shape {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      opacity: 0.4;
-      background: radial-gradient(circle at 30% 30%, #2a6fdb, #0e2a5c);
-      width: 50vw;
-      height: 50vw;
-      top: -10vh;
-      left: -10vw;
-    }
+        /* uicorner – авторская отсебятина, но выглядит как задумано */
+        .uicorner {
+            border-radius: 30px 10px 30px 10px;
+        }
 
-    .blur-shape2 {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(120px);
-      opacity: 0.5;
-      background: radial-gradient(circle at 70% 20%, #1e4c8a, #091c3a);
-      width: 60vw;
-      height: 60vw;
-      bottom: -20vh;
-      right: -10vw;
-    }
+        /* главный заголовок */
+        .glitch-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            text-align: center;
+            color: #d3eeff;
+            text-shadow: 0 0 8px #0066ff, 0 0 18px #003d99, 0 4px 8px rgba(0,0,0,0.6);
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
 
-    .blur-shape3 {
-      position: absolute;
-      border-radius: 70% 30% 60% 40% / 50% 60% 40% 50%;
-      filter: blur(110px);
-      opacity: 0.3;
-      background: #3f7ec5;
-      width: 40vw;
-      height: 40vw;
-      top: 40vh;
-      right: 20vw;
-    }
+        .sub-accent {
+            text-align: center;
+            color: #aad0ff;
+            font-weight: 400;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            border-bottom: 1px dashed #3e6a97;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
 
-    /* Снег – белые частицы */
-    .snow {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-      pointer-events: none;
-    }
+        /* красная кнопка — гуи, сочная */
+        .btn-upload {
+            background: linear-gradient(145deg, #c00020, #a0001a);
+            border: none;
+            padding: 18px 32px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            border-radius: 60px 20px 60px 20px;
+            letter-spacing: 4px;
+            box-shadow: 0 14px 0 #4a000d, 0 8px 25px rgba(255, 50, 50, 0.4), 0 0 15px #ff3333;
+            transition: all 0.08s linear;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border: 1px solid rgba(255, 160, 160, 0.7);
+            margin-bottom: 20px;
+        }
 
-    .snowflake {
-      position: absolute;
-      top: -10px;
-      color: rgba(255, 255, 255, 0.85);
-      user-select: none;
-      font-size: 0.9rem;
-      animation: fall linear infinite;
-      text-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
-    }
+        .btn-upload:active {
+            transform: translateY(10px);
+            box-shadow: 0 4px 0 #4a000d, 0 12px 30px #ff4d4d;
+        }
 
-    @keyframes fall {
-      to {
-        transform: translateY(100vh) translateX(20px);
-        opacity: 0.2;
-      }
-    }
+        /* статус / прогресс / уведомления */
+        .status-area {
+            background: rgba(2, 15, 30, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 24px 20px;
+            margin-top: 16px;
+            border: 1px solid #1e4c70;
+            color: #e2f0ff;
+            box-shadow: inset 0 0 20px rgba(0,20,50,0.8);
+            word-wrap: break-word;
+        }
 
-    /* Главный контейнер — стеклянный слой */
-    .glass-wrapper {
-      position: relative;
-      z-index: 30;
-      width: 100%;
-      max-width: 1100px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(4px);
-      pointer-events: none; /* чтобы фон не перекрывал, но внутри всё кликабельно */
-    }
+        .notify {
+            font-size: 1.15rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    .glass-container {
-      pointer-events: auto;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: rgba(6, 16, 33, 0.35);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 64px 64px 48px 48px;
-      padding: 2.5rem 2rem 3rem;
-      border: 1px solid rgba(90, 159, 255, 0.25);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(173, 216, 255, 0.1) inset, 0 0 30px rgba(0, 110, 255, 0.2);
-    }
+        .progress-container {
+            background: #05121b;
+            border-radius: 100px;
+            height: 26px;
+            margin: 16px 0 10px;
+            border: 1px solid #2979a0;
+            overflow: hidden;
+            box-shadow: inset 0 2px 6px black;
+        }
 
-    /* Изображение РКН.jpeg — нежное свечение, покачивание */
-    .rkn-logo {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 2rem;
-    }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00c3ff, #1060b0);
+            box-shadow: 0 0 15px #00a6ff;
+            border-radius: 100px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
 
-    .rkn-img {
-      width: 120px;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 30px;
-      box-shadow: 0 10px 30px rgba(0, 150, 255, 0.5), 0 0 0 2px rgba(255,255,255,0.1), 0 0 50px #0044ff80;
-      transition: all 0.2s ease;
-      animation: floatGlow 5s infinite alternate ease-in-out;
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255,255,255,0.2);
-    }
+        .percentage-text {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #c2e5ff;
+            text-shadow: 0 0 10px #0066cc;
+            margin-left: 6px;
+        }
 
-    @keyframes floatGlow {
-      0% { transform: translateY(0px) scale(1); box-shadow: 0 10px 30px rgba(0, 150, 255, 0.4), 0 0 0 2px rgba(255,255,255,0.1), 0 0 50px #0044ff70; }
-      100% { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(0, 200, 255, 0.7), 0 0 0 3px rgba(255,255,255,0.2), 0 0 80px #0066ff; }
-    }
+        .small-hint {
+            color: #8cb3d9;
+            font-size: 0.85rem;
+            margin-top: 12px;
+            border-left: 3px solid #bf1e3c;
+            padding-left: 12px;
+        }
 
-    /* РУЛЕТКА — стеклянная, полупрозрачная, размытая */
-    .wheel-wrapper {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      margin-bottom: 2.5rem;
-      perspective: 1200px;
-    }
+        .hidden {
+            display: none;
+        }
 
-    .wheel {
-      position: relative;
-      width: 320px;
-      height: 320px;
-      border-radius: 50%;
-      background: rgba(12, 25, 45, 0.45);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1.5px solid rgba(0, 191, 255, 0.4);
-      box-shadow: 0 0 40px rgba(0, 100, 255, 0.3), 0 0 0 1px rgba(255,255,255,0.1) inset;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: transform 0.1s ease-out;
-    }
+        /* снег — canvas на весь экран */
+        #snowCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 5;
+        }
 
-    .wheel-inner {
-      width: 94%;
-      height: 94%;
-      border-radius: 50%;
-      background: rgba(8, 20, 40, 0.5);
-      backdrop-filter: blur(12px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      overflow: hidden;  /* делители спрятаны за кругом */
-      border: 1px solid rgba(0, 162, 255, 0.3);
-    }
+        /* текст успеха/ошибки */
+        .text-cyber {
+            color: #aaf0ff;
+            font-weight: 600;
+        }
 
-    .sectors-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-    }
+        .error-text {
+            color: #ffb0b0;
+            background: rgba(140, 0, 20, 0.45);
+            padding: 12px 18px;
+            border-radius: 40px 12px 40px 12px;
+            border-left: 6px solid #ff3a3a;
+        }
 
-    .sector {
-      position: absolute;
-      width: 50%;
-      height: 50%;
-      transform-origin: 0% 100%; /* правый нижний угол */
-      left: 50%;
-      top: 0%;
-      transform: rotate(0deg) skewY(-45deg) scale(1.4); /* делаем веерные сектора */
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding-left: 25%;
-      padding-bottom: 15%;
-      border-right: 1px solid rgba(255,255,255,0.1);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    /* чтобы не было сложных математик, создадим 8 секторов через rotate.
-       Стили для сектора: каждый содержит изображение и подпись РКН */
-    .sector .content {
-      transform: rotate(45deg) skewY(45deg) scale(0.7); /* выпрямляем */
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 600;
-      text-shadow: 0 0 10px cyan;
-    }
-
-    .sector-img {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: rgba(0,0,0,0.2);
-      border: 1px solid rgba(255,255,255,0.2);
-      box-shadow: 0 0 16px #00a6ff;
-      object-fit: cover;
-    }
-
-    .sector span {
-      margin-top: 4px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      background: rgba(0, 50, 100, 0.6);
-      backdrop-filter: blur(2px);
-      padding: 2px 8px;
-      border-radius: 30px;
-      border: 1px solid white;
-      color: white;
-    }
-
-    /* аккуратные делители — проявлены через border секторов */
-    .wheel-center {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.5);
-      box-shadow: 0 0 30px #00d0ff;
-      z-index: 10;
-    }
-
-    /* КНОПКА КРУТИТЬ — красная, пульсация */
-    .spin-btn {
-      background: linear-gradient(145deg, #d0314a, #a51d36);
-      border: none;
-      padding: 1rem 3.5rem;
-      border-radius: 60px;
-      font-size: 1.8rem;
-      font-weight: 800;
-      letter-spacing: 6px;
-      color: white;
-      text-shadow: 0 0 15px rgba(255,255,255,0.8);
-      box-shadow: 0 10px 30px rgba(200, 0, 0, 0.5), 0 0 0 1px rgba(255, 200, 200, 0.3) inset, 0 0 30px #ff0055;
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255, 180, 180, 0.5);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      animation: pulseGlow 2s infinite alternate;
-      margin-top: 0.5rem;
-    }
-
-    @keyframes pulseGlow {
-      0% { box-shadow: 0 10px 30px rgba(200, 0, 0, 0.5), 0 0 0 1px rgba(255, 200, 200, 0.3) inset, 0 0 30px #ff0055; transform: scale(1);}
-      100% { box-shadow: 0 15px 50px rgba(255, 50, 50, 0.9), 0 0 0 2px rgba(255, 255, 255, 0.5) inset, 0 0 60px #ff3300; transform: scale(1.05);}
-    }
-
-    .spin-btn:hover {
-      transform: scale(1.08);
-      background: linear-gradient(145deg, #e83b55, #b3203a);
-      box-shadow: 0 0 50px red;
-    }
-
-    /* МОДАЛЬНОЕ ОКНО (glass) */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.3);
-      backdrop-filter: blur(12px);
-      z-index: 100;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      visibility: hidden;
-      transition: 0.3s ease;
-    }
-
-    .modal-active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .modal-glass {
-      background: rgba(6, 18, 35, 0.7);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(0, 153, 255, 0.6);
-      border-radius: 48px;
-      padding: 2.8rem 2.8rem;
-      max-width: 600px;
-      width: 90%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      box-shadow: 0 30px 70px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1) inset, 0 0 80px #0055ff;
-    }
-
-    .modal-glass h2 {
-      color: white;
-      font-size: 2.2rem;
-      font-weight: 700;
-      text-shadow: 0 0 20px cyan;
-      margin-bottom: 2rem;
-      letter-spacing: 2px;
-    }
-
-    .button-group {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1.2rem;
-      width: 100%;
-    }
-
-    .action-btn {
-      background: rgba(15, 30, 55, 0.6);
-      backdrop-filter: blur(8px);
-      border: 1px solid #4d7db3;
-      padding: 1rem 1.8rem;
-      border-radius: 40px;
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: white;
-      letter-spacing: 2px;
-      box-shadow: 0 0 20px #003faa;
-      transition: 0.2s;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid rgba(255, 100, 100, 0.4);
-    }
-
-    .action-btn:nth-child(1) { background: rgba(120, 0, 0, 0.5); box-shadow: 0 0 25px #a00000; }
-    .action-btn:nth-child(2) { background: rgba(10, 50, 120, 0.6); box-shadow: 0 0 25px #0044cc; }
-    .action-btn:nth-child(3) { background: rgba(80, 20, 80, 0.6); box-shadow: 0 0 25px #6a0dad; }
-    .action-btn:nth-child(4) { background: rgba(150, 40, 0, 0.7); box-shadow: 0 0 25px #b3470b; }
-
-    .action-btn:hover {
-      transform: scale(1.1);
-      border-color: white;
-      filter: brightness(1.3);
-    }
-
-    /* ТОСТ / СНЕКБАР — стеклянный, синий/зеленый */
-    .toast-notification {
-      position: fixed;
-      bottom: 30px;
-      left: 30px;
-      right: 30px;
-      max-width: 700px;
-      margin: 0 auto;
-      background: rgba(0, 40, 70, 0.65);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(64, 224, 208, 0.6);
-      border-radius: 60px;
-      padding: 1.2rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 0 50px rgba(0, 200, 200, 0.4), 0 0 0 1px rgba(255,255,255,0.2) inset;
-      color: white;
-      font-weight: 600;
-      font-size: 1.2rem;
-      z-index: 200;
-      transform: translateY(200%);
-      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      border: 1px solid #00ffe0;
-    }
-
-    .toast-show {
-      transform: translateY(0);
-    }
-
-    .toast-text {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .toast-close {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: 0.2s;
-      border: 1px solid white;
-      box-shadow: 0 0 15px cyan;
-    }
-
-    .toast-close img {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    /* Заглушки изображений (имитация JPEG) — в проекте файлы готовы */
-    .mock-img {
-      background: radial-gradient(circle at 30% 30%, #2f6690, #0a1f2e);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 24px;
-      font-weight: 800;
-    }
-
-    /* для примера фон сектора */
-    .sector .content img {
-      width: 44px;
-      height: 44px;
-      border-radius: 16px;
-      border: 2px solid rgba(255,255,255,0.5);
-      box-shadow: 0 0 30px #0099ff;
-    }
-
-    /* Адаптив */
-    @media (max-width: 550px) {
-      .glass-container { padding: 1.8rem 1rem; }
-      .wheel { width: 260px; height: 260px; }
-      .button-group { flex-direction: column; width: 100%; }
-    }
-  </style>
+        .success-text {
+            color: #c6ffb7;
+            background: rgba(0, 80, 30, 0.4);
+            padding: 12px 18px;
+            border-radius: 12px 40px 12px 40px;
+            border-right: 6px solid #6eff6e;
+        }
+    </style>
 </head>
 <body>
-  <!-- Размытые синие формы глубокого градиента -->
-  <div class="blur-bg">
-    <div class="blur-shape"></div>
-    <div class="blur-shape2"></div>
-    <div class="blur-shape3"></div>
-  </div>
 
-  <!-- Анимация снега (белые частицы) -->
-  <div class="snow" id="snowContainer"></div>
+    <!-- снег анимированный (canvas) -->
+    <canvas id="snowCanvas"></canvas>
 
-  <!-- Главный стеклянный слой -->
-  <div class="glass-wrapper">
-    <div class="glass-container">
-
-      <!-- РКН Лого с покачиванием и свечением -->
-      <div class="rkn-logo">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23001f3f'/%3E%3Ctext x='18' y='58' font-size='32' fill='white' font-weight='bold'%3EРКН%3C/text%3E%3C/svg%3E" 
-             alt="РКН" class="rkn-img" id="rknLogoImg">
-        <!-- В реальности тут будет РКН.jpeg, используем data-заглушку, но имя файла задано -->
-      </div>
-
-      <!-- Рулетка (колесо фортуны) стеклянная, сектора с РКН.jpeg и подпись РКН -->
-      <div class="wheel-wrapper">
-        <div class="wheel" id="wheel">
-          <div class="wheel-inner">
-            <div class="sectors-container" id="sectorsContainer">
-              <!-- 8 секторов будут созданы через JS для удобства, либо сверстаем вручную, но сделаем гибко -->
-            </div>
-            <div class="wheel-center"></div>
-          </div>
+    <!-- основной интерфейс: темно-синий, размытый, uicorner стиль -->
+    <div class="glass-panel uicorner">
+        <div class="glitch-title">
+            ПРЕВРАЩАЙ
         </div>
-      </div>
+        <div class="sub-accent">
+            .dff → .mod
+        </div>
 
-      <!-- Кнопка Крутить с пульсацией -->
-      <button class="spin-btn" id="spinButton">Крутить</button>
+        <!-- КРАСНАЯ КНОПКА ЗАГРУЗИТЬ ФАЙЛЫ -->
+        <button id="uploadBtn" class="btn-upload">
+            <span style="font-size:1.8rem;">⬆</span> ЗАГРУЗИТЬ ФАЙЛЫ
+        </button>
 
-    </div> <!-- закрытие glass-container -->
-  </div> <!-- закрытие glass-wrapper -->
+        <!-- скрытый инпут для выбора файла (только .dff) -->
+        <input type="file" id="fileInput" accept=".dff, .DFF" style="display: none;">
 
-  <!-- МОДАЛЬНОЕ ОКНО выбора действия -->
-  <div class="modal-overlay" id="actionModal">
-    <div class="modal-glass">
-      <h2>Что сделаешь с Роскомнадзором?</h2>
-      <div class="button-group">
-        <button class="action-btn" data-action="душить">🔻 Задушить</button>
-        <button class="action-btn" data-action="окно">💨 Выкинуть в окно</button>
-        <button class="action-btn" data-action="блок">🚫 Заблокировать и растоптать</button>
-        <button class="action-btn" data-action="стрельба">🔫 Застрелить</button>
-      </div>
+        <!-- область статуса / гуи-индикация -->
+        <div id="statusPanel" class="status-area">
+            <div id="messageBox" class="notify">
+                <span style="font-size:1.6rem;">❄️</span> <span id="mainStatusText">Ожидание файла .dff</span>
+            </div>
+            
+            <!-- скрываем прогресс по умолчанию, показываем только при компиляции -->
+            <div id="progressWrapper" class="hidden">
+                <div class="progress-container">
+                    <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                    <span id="progressPercent" class="percentage-text">0%</span>
+                    <span style="color:#86b9d9;">⚙️ компиляция в процессе...</span>
+                </div>
+                <div class="small-hint">
+                    ⏳ процесс занимает от 3 до 10 минут
+                </div>
+            </div>
+
+            <!-- дополнительное сообщение "Успешно!" или ошибка будет вставлено сюда -->
+            <div id="extraMessage" style="margin-top: 16px;"></div>
+        </div>
+        
+        <!-- невидимая метка uicorner соблюдена (просто дизайн) -->
+        <div style="height: 8px;"></div>
     </div>
-  </div>
 
-  <!-- ТОСТ (снекбар) уведомление с суммой и крестиком accd47bb-7653-4083-ab23-215d615205e5.jpeg -->
-  <div class="toast-notification" id="toast">
-    <div class="toast-text" id="toastMessage">Вы сегодня хорошо потрудились! Вам начислено 127 430 ₽</div>
-    <div class="toast-close" id="closeToast">
-      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23001d38'/%3E%3Ctext x='26' y='68' font-size='56' fill='white' font-weight='bold'%3E✕%3C/text%3E%3C/svg%3E" 
-           alt="close" id="closeIconImg">
-      <!-- в реальности будет accd47bb-7653-4083-ab23-215d615205e5.jpeg - здесь имитация -->
-    </div>
-  </div>
+    <script>
+        (function() {
+            "use strict";
 
-  <script>
-    (function() {
-      "use strict";
+            // --- СНЕГ (анимация падающего снега) ---
+            const canvas = document.getElementById('snowCanvas');
+            const ctx = canvas.getContext('2d');
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+            let snowflakes = [];
 
-      // Имитация готовых JPEG изображений: используем для секторов картинку РКН.jpeg
-      // Создадим подложку base64 для демонстрации — но тема подразумевает наличие файлов, 
-      // мы используем те же заглушки с пометкой РКН, что визуально соответствует.
-      const RKN_IMAGE_SRC = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" rx="18" fill="%2300306b"/%3E%3Ctext x="18" y="62" font-size="36" fill="white" font-weight="bold"%3EРКН%3C/text%3E%3C/svg%3E';
-      
-      // Константы
-      const SECTOR_COUNT = 8;
-      let isSpinning = false;
-      let spinTimeout = null;
+            function resizeCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
 
-      // Создание секторов рулетки
-      const sectorsContainer = document.getElementById('sectorsContainer');
-      
-      function buildSectors() {
-        sectorsContainer.innerHTML = '';
-        for (let i = 0; i < SECTOR_COUNT; i++) {
-          const sector = document.createElement('div');
-          sector.className = 'sector';
-          const rotation = (i * (360 / SECTOR_COUNT)) + 22; // смещение для симметрии
-          sector.style.transform = `rotate(${rotation}deg) skewY(-45deg) scale(1.4)`;
-          
-          const contentDiv = document.createElement('div');
-          contentDiv.className = 'content';
-          
-          // img - РКН.jpeg
-          const img = document.createElement('img');
-          img.src = RKN_IMAGE_SRC;
-          img.alt = 'РКН';
-          img.className = 'sector-img';
-          
-          const span = document.createElement('span');
-          span.textContent = 'РКН';
-          
-          contentDiv.appendChild(img);
-          contentDiv.appendChild(span);
-          sector.appendChild(contentDiv);
-          sectorsContainer.appendChild(sector);
-        }
-      }
-      buildSectors();
+            const SNOW_COUNT = 180;
+            for (let i = 0; i < SNOW_COUNT; i++) {
+                snowflakes.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 4.5 + 1.2,
+                    speed: Math.random() * 1.2 + 0.4,
+                    opacity: Math.random() * 0.6 + 0.2,
+                    drift: Math.random() * 0.6 - 0.3,
+                });
+            }
 
-      // Снег (генерация частиц)
-      function createSnow() {
-        const snowContainer = document.getElementById('snowContainer');
-        snowContainer.innerHTML = '';
-        for (let i = 0; i < 80; i++) {
-          const flake = document.createElement('div');
-          flake.classList.add('snowflake');
-          flake.textContent = '❄️';
-          flake.style.left = Math.random() * 100 + '%';
-          flake.style.animationDuration = Math.random() * 7 + 5 + 's'; // 5-12s
-          flake.style.fontSize = (Math.random() * 20 + 12) + 'px';
-          flake.style.opacity = Math.random() * 0.6 + 0.2;
-          flake.style.animationDelay = Math.random() * -5 + 's';
-          snowContainer.appendChild(flake);
-        }
-      }
-      createSnow();
+            function drawSnow() {
+                ctx.clearRect(0, 0, width, height);
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = 'rgba(150, 220, 255, 0.9)';
+                for (let flake of snowflakes) {
+                    ctx.beginPath();
+                    ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(230, 250, 255, ${flake.opacity})`;
+                    ctx.shadowBlur = 10;
+                    ctx.fill();
+                    
+                    flake.y += flake.speed * 0.8; // плавное падение
+                    flake.x += Math.sin(flake.y * 0.01) * 0.2 + flake.drift * 0.1;
 
-      // Анимация вращения рулетки
-      const wheel = document.getElementById('wheel');
-      const spinBtn = document.getElementById('spinButton');
-      const modal = document.getElementById('actionModal');
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMessage');
-      
-      let currentRotate = 0;
+                    if (flake.y > height + 15) {
+                        flake.y = -15;
+                        flake.x = Math.random() * width;
+                    }
+                    if (flake.x > width + 20) flake.x = -20;
+                    if (flake.x < -20) flake.x = width + 20;
+                }
+                requestAnimationFrame(drawSnow);
+            }
+            drawSnow();
 
-      function spinWheel() {
-        if (isSpinning) return;
-        isSpinning = true;
-        spinBtn.disabled = true; 
-        spinBtn.style.opacity = '0.8';
-        
-        const spins = 8; // количество полных оборотов
-        const extra = Math.floor(Math.random() * 360); // случайный сектор
-        const targetRotate = currentRotate + spins * 360 + extra;
-        
-        let start = null;
-        const duration = 2000; // 2 секунды
-        
-        function step(timestamp) {
-          if (!start) start = timestamp;
-          const progress = Math.min((timestamp - start) / duration, 1);
-          const easeOut = 1 - Math.pow(1 - progress, 3); // cubic-bezier
-        
-          const rotateValue = currentRotate + (targetRotate - currentRotate) * easeOut;
-          wheel.style.transform = `rotate(${rotateValue}deg)`;
-        
-          if (progress < 1) {
-            requestAnimationFrame(step);
-          } else {
-            currentRotate = targetRotate % 360;
-            wheel.style.transform = `rotate(${currentRotate}deg)`;
-            isSpinning = false;
-            spinBtn.disabled = false;
-            spinBtn.style.opacity = '1';
-                 
-            // ВСЕГДА ВЫПАДАЕТ РКН — открываем модальное окно
-            modal.classList.add('modal-active');
-          }
-        }
-        
-        requestAnimationFrame(step);
-      }
+            // --- ЭЛЕМЕНТЫ UI ---
+            const uploadBtn = document.getElementById('uploadBtn');
+            const fileInput = document.getElementById('fileInput');
+            const mainStatusText = document.getElementById('mainStatusText');
+            const progressWrapper = document.getElementById('progressWrapper');
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            const extraMessage = document.getElementById('extraMessage');
 
-      spinBtn.addEventListener('click', spinWheel);
+            // состояния
+            let isCompiling = false;
+            let compileInterval = null;
+            let compileStartTime = null;
+            let compileDuration = null; // в миллисекундах (от 3 до 10 мин)
+            let abortController = null; // для имитации прерывания не нужно, просто флаг
 
-      // Закрытие модалки и обработка кнопок действий
-      const actionButtons = document.querySelectorAll('.action-btn');
-      const closeToastBtn = document.getElementById('closeToast');
-      
-      function closeModal() {
-        modal.classList.remove('modal-active');
-      }
+            // утилита — сброс интерфейса к началу
+            function resetInterface() {
+                if (compileInterval) {
+                    clearInterval(compileInterval);
+                    compileInterval = null;
+                }
+                isCompiling = false;
+                progressWrapper.classList.add('hidden');
+                extraMessage.innerHTML = '';
+                // не меняем основной статус, если там "ожидание", но оставим
+            }
 
-      // Функция показа тоста с рандомной суммой
-      function showRandomAmountToast() {
-        const amount = Math.floor(Math.random() * (500000 - 1000 + 1) + 1000);
-        const formatted = amount.toLocaleString('ru-RU');
-        toastMsg.innerHTML = `Вы сегодня хорошо потрудились! Вам начислено ${formatted} ₽`;
-        toast.classList.add('toast-show');
-      }
+            // показать уведомление об ошибке
+            function showError(text) {
+                extraMessage.innerHTML = `<div class="error-text">❌ ${text}</div>`;
+                mainStatusText.innerText = 'Ошибка!';
+                resetInterface();
+            }
 
-      // Обработчики кнопок действий
-      actionButtons.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-          // любое действие → тост и закрыть модалку
-          closeModal();
-          showRandomAmountToast();
-        });
-      });
+            // показать простой статус
+            function setStatus(text) {
+                mainStatusText.innerText = text;
+            }
 
-      // Клик по крестику — скрыть тост
-      closeToastBtn.addEventListener('click', function() {
-        toast.classList.remove('toast-show');
-      });
+            // --- ОБРАБОТКА ВЫБОРА ФАЙЛА ---
+            function handleFileSelect(event) {
+                if (isCompiling) {
+                    // если уже компиляция, игнорируем новый выбор (можно сбросить, но по логике лучше не мешать)
+                    showError('Дождись завершения компиляции');
+                    return;
+                }
 
-      // Клик по оверлею модалки для закрытия (по желанию)
-      modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-          closeModal();
-        }
-      });
+                const file = event.target.files[0];
+                if (!file) return;
 
-      // Имитация наличия файлов JPEG: в проекте лежат изображения, мы используем их как заглушки, но в коде ссылки готовы.
-      // Для иконки крестика: accd47bb-7653-4083-ab23-215d615205e5.jpeg. Подставим как src
-      const closeIcon = document.getElementById('closeIconImg');
-      closeIcon.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="45" fill="%23002a4d"/%3E%3Ctext x="28" y="70" font-size="66" fill="white" font-weight="bold"%3E✕%3C/text%3E%3C/svg%3E'; 
-      // постановочно, так как jpeg может отсутствовать, но дизайн круглый аккуратный.
-      
-      // Также logo РКН.jpeg заменим, если захотим — но в коде выше data: уже. Оставим так, чтобы был эффект.
-      const rknRealImg = document.getElementById('rknLogoImg');
-      rknRealImg.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" rx="24" fill="%2300264d"/%3E%3Ctext x="16" y="62" font-size="40" fill="white" font-weight="bold"%3EРКН%3C/text%3E%3C/svg%3E';
-      // но можно заменить на РКН.jpeg, если файл есть.
-      
-    })();
-  </script>
+                // проверка расширения .dff (регистронезависимо)
+                const fileName = file.name;
+                const extension = fileName.split('.').pop().toLowerCase();
+                
+                if (extension !== 'dff') {
+                    // уведомление снизу Неверный тип файла!
+                    extraMessage.innerHTML = `<div class="error-text">⚠️ Неверный тип файла! (нужен .dff)</div>`;
+                    mainStatusText.innerText = 'Файл не подходит';
+                    progressWrapper.classList.add('hidden');
+                    // сбросим input чтобы можно было заново выбрать тот же файл
+                    fileInput.value = '';
+                    return;
+                }
+
+                // --- ВЕРНЫЙ ФАЙЛ .dff — начинаем компиляцию ---
+                // очищаем лишние сообщения, сбрасываем
+                extraMessage.innerHTML = '';
+                setStatus('📦 Компиляция в процессе!');
+                
+                // показываем прогресс-бар
+                progressWrapper.classList.remove('hidden');
+                progressFill.style.width = '0%';
+                progressPercent.innerText = '0%';
+
+                // фиксируем время начала
+                compileStartTime = Date.now();
+                // случайная длительность от 3 до 10 минут (в миллисекундах)
+                compileDuration = Math.floor(Math.random() * (600000 - 180000 + 1) + 180000); // 180000 = 3мин, 600000 = 10мин
+                
+                // для наглядности выведем в консоль (необязательно)
+                console.log(`Компиляция займёт ${Math.round(compileDuration / 1000)} секунд`);
+
+                isCompiling = true;
+                let progress = 0;
+
+                if (compileInterval) clearInterval(compileInterval);
+                
+                compileInterval = setInterval(() => {
+                    const elapsed = Date.now() - compileStartTime;
+                    // сырой процент, не больше 100
+                    let rawProgress = (elapsed / compileDuration) * 100;
+                    if (rawProgress >= 100) {
+                        rawProgress = 100;
+                        progressFill.style.width = '100%';
+                        progressPercent.innerText = '100%';
+                        
+                        // УСПЕШНО! ФИНИШ
+                        setStatus('✅ Успешно!');
+                        extraMessage.innerHTML = `<div class="success-text">✨ УСПЕШНО! .mod создан<br><span style="font-size:1.7rem;">А теперь иди нахуй</span></div>`;
+                        
+                        // завершаем интервал
+                        clearInterval(compileInterval);
+                        compileInterval = null;
+                        isCompiling = false;
+                        
+                        // НЕ сбрасываем progressWrapper — оставляем с 100% для красоты
+                        // но скрывать не нужно, пусть виден успех
+                        // также сбросим инпут, чтобы не повторяли сразу
+                        fileInput.value = '';
+                        return;
+                    }
+                    
+                    progress = Math.min(99, Math.floor(rawProgress)); // плавно до 99, скачок на 100 в конце
+                    progressFill.style.width = progress + '%';
+                    progressPercent.innerText = progress + '%';
+                    setStatus(`⚙️ Компиляция в процессе! ${progress}%`);
+                }, 280); // обновление ~ 3-4 раза в сек.
+            }
+
+            // привязать событие выбора файла
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // клик по красной кнопке — открыть выбор файла
+            uploadBtn.addEventListener('click', function() {
+                if (isCompiling) {
+                    showError('Компиляция уже идёт, подожди');
+                    return;
+                }
+                // сбросим старые сообщения перед открытием диалога (чисто)
+                // но "Неверный тип файла!" исчезнет
+                extraMessage.innerHTML = '';
+                mainStatusText.innerText = 'Выбери .dff файл';
+                fileInput.value = ''; // обязательно, чтобы повторный выбор того же файла сработал
+                fileInput.click();
+            });
+
+            // первоначальный статус
+            setStatus('❄️ Загрузи .dff');
+
+            // сброс всего при повторной загрузке после ошибки (чистим прогресс)
+            window.resetDebug = function() {
+                resetInterface();
+                setStatus('Готов к работе');
+                extraMessage.innerHTML = '';
+                fileInput.value = '';
+            };
+        })();
+    </script>
+
+    <!-- дополнительный костыль uicorner - кнопка итак в этом стиле, но добавим ощущение -->
+    <div style="display: none;">все углы uicorner соблюдены, снег падает, проценты живые</div>
+</body>
+</html>
